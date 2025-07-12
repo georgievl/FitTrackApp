@@ -1,0 +1,19 @@
+{% extends 'common/base.html' %}
+{% load static %}
+
+{% block title %}Welcome{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height: 70vh;">
+    <div class="col-md-8 text-center">
+        <h1 class="display-4 fw-bold mb-4">Welcome to FitTrack</h1>
+        <p class="lead mb-4">
+            Your all-in-one gym workout and meal planning companion.
+            Stay consistent, stay healthy, stay strong.
+        </p>
+        <a href="{% url 'register' %}" class="btn btn-primary btn-lg px-5 rounded-pill shadow">
+            Get Started
+        </a>
+    </div>
+</div>
+{% endblock %}

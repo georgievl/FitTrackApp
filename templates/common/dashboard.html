@@ -1,0 +1,72 @@
+{% extends 'common/base.html' %}
+{% load static %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+
+        <div class="text-center mb-5">
+            <h2>Today is {{ today }}</h2>
+        </div>
+
+        {% if workout %}
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <i class="bi bi-dumbbell me-2"></i> Your Workout Plan – {{ workout.title }}
+                </div>
+                <div class="card-body">
+                    {% if workout.notes %}
+                        <p>{{ workout.notes }}</p>
+                    {% endif %}
+                    <ul class="list-group">
+                        {% for exercise in workout.exercises.all %}
+                            <li class="list-group-item">
+                                <strong>{{ exercise.name }}</strong>:
+                                {{ exercise.sets }} sets × {{ exercise.reps }} reps
+                                <span class="text-muted"> (Rest: {{ exercise.rest_seconds }}s)</span>
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item text-muted">No exercises added yet.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        {% else %}
+            <p class="text-muted text-center">
+                You have no workout planned for today.
+                <a href="#">Create one now</a>.
+            </p>
+        {% endif %}
+
+        {% if meals %}
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <i class="bi bi-egg-fried me-2"></i> Your Meals for Today
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        {% for meal in meals %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>{{ meal.meal_time }}</strong>: {{ meal.recipe.title }}
+                                </div>
+                                <small class="text-muted">{{ meal.recipe.calories }} cal</small>
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item text-muted">No meals planned.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        {% else %}
+            <p class="text-muted text-center">
+                No meals planned for today.
+                <a href="#">Add meals</a>.
+            </p>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}
