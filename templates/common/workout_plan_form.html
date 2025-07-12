@@ -1,0 +1,31 @@
+{% extends 'common/base.html' %}
+{% load crispy_forms_filters %}
+{% load crispy_forms_tags %}
+
+{% block title %}New Workout Plan{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm mx-auto" style="max-width: 700px;">
+    <div class="card-body">
+        <h3 class="mb-4 text-center">Create Workout Plan</h3>
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {{ form|crispy }}
+
+            <h5 class="mt-4">Exercises</h5>
+            {{ formset.management_form }}
+            {% for form in formset %}
+                <div class="border rounded p-3 mb-3">
+                    {{ form|crispy }}
+                </div>
+            {% endfor %}
+
+            <div class="d-grid mt-3">
+                <button type="submit" class="btn btn-primary rounded-pill py-2">
+                    <i class="bi bi-plus-circle me-1"></i> Save Plan
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,4 +1,6 @@
 from django import forms
+from django.forms import inlineformset_factory
+
 from .models import UserProfile, WorkoutPlan, WorkoutExercise, MealPlan, Recipe
 
 
@@ -18,6 +20,17 @@ class WorkoutPlanForm(forms.ModelForm):
     class Meta:
         model = WorkoutPlan
         fields = ['day', 'title', 'notes']
+        widgets = {
+            'notes': forms.Textarea(attrs={'rows': 3}),
+        }
+
+WorkoutExerciseFormSet = inlineformset_factory(
+    WorkoutPlan,
+    WorkoutExercise,
+    fields=('name', 'sets', 'reps', 'rest_seconds'),
+    extra=1,
+    can_delete=True
+)
 
 class WorkoutExerciseForm(forms.ModelForm):
     class Meta:

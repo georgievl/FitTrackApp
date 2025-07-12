@@ -17,6 +17,16 @@
                     <i class="bi bi-dumbbell me-2"></i> Your Workout Plan – {{ workout.title }}
                 </div>
                 <div class="card-body">
+
+                    <div class="text-end mb-3">
+                        <a href="{% url 'update_workout_plan' workout.pk %}" class="btn btn-sm btn-outline-primary me-2">
+                            <i class="bi bi-pencil-square"></i> Edit
+                        </a>
+                        <a href="{% url 'delete_workout_plan' workout.pk %}" class="btn btn-sm btn-outline-danger">
+                            <i class="bi bi-trash"></i> Delete
+                        </a>
+                    </div>
+
                     {% if workout.notes %}
                         <p>{{ workout.notes }}</p>
                     {% endif %}
@@ -33,15 +43,22 @@
                     </ul>
                 </div>
             </div>
+
+            <div class="text-end mt-3">
+                <a href="{% url 'create_workout_plan' %}" class="btn btn-outline-primary">
+                    <i class="bi bi-plus-circle"></i> Add Another Workout
+                </a>
+            </div>
+
         {% else %}
             <p class="text-muted text-center">
                 You have no workout planned for today.
-                <a href="#">Create one now</a>.
+                <a href="{% url 'create_workout_plan' %}">Create one now</a>.
             </p>
         {% endif %}
 
         {% if meals %}
-            <div class="card shadow-sm">
+            <div class="card shadow-sm mt-5">
                 <div class="card-header bg-success text-white">
                     <i class="bi bi-egg-fried me-2"></i> Your Meals for Today
                 </div>
@@ -52,7 +69,15 @@
                                 <div>
                                     <strong>{{ meal.meal_time }}</strong>: {{ meal.recipe.title }}
                                 </div>
-                                <small class="text-muted">{{ meal.recipe.calories }} cal</small>
+                                <small class="text-muted">
+                                    {{ meal.recipe.calories }} cal
+                                    <a href="{% url 'update_meal_plan' meal.pk %}" class="ms-2 text-decoration-none text-primary">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </a>
+                                    <a href="{% url 'delete_meal_plan' meal.pk %}" class="ms-2 text-decoration-none text-danger">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </small>
                             </li>
                         {% empty %}
                             <li class="list-group-item text-muted">No meals planned.</li>
@@ -60,10 +85,16 @@
                     </ul>
                 </div>
             </div>
+
+            <div class="text-end mt-3">
+                <a href="{% url 'create_meal_plan' %}" class="btn btn-outline-success">
+                    <i class="bi bi-plus-circle"></i> Add Another Meal
+                </a>
+            </div>
         {% else %}
             <p class="text-muted text-center">
                 No meals planned for today.
-                <a href="#">Add meals</a>.
+                <a href="{% url 'create_meal_plan' %}">Add meals</a>.
             </p>
         {% endif %}
 
