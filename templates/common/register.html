@@ -5,39 +5,31 @@
 {% block title %}Register{% endblock %}
 
 {% block content %}
-<style>
-    .center-screen {
-        min-height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 2rem;
-        box-sizing: border-box;
-    }
-</style>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h3 class="text-center mb-4">Create Your Account</h3>
 
-<div class="center-screen">
-    <div class="card shadow-sm w-100" style="max-width: 460px;">
-        <div class="card-body p-4">
-            <h3 class="text-center mb-4">Create Your Account</h3>
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        {{ form|crispy }}
 
-            <form method="post" novalidate>
-                {% csrf_token %}
-                {{ form|crispy }}
+                        <div class="d-grid mt-3">
+                            <button type="submit" class="btn btn-success rounded-pill py-2">
+                                <i class="bi bi-person-plus me-1"></i> Create Account
+                            </button>
+                        </div>
+                    </form>
 
-                <div class="d-grid mt-3">
-                    <button type="submit" class="btn btn-success rounded-pill py-2">
-                        <i class="bi bi-person-plus me-1"></i> Create Account
-                    </button>
+                    <p class="mt-4 text-center text-muted small">
+                        Already have an account?
+                        <a href="{% url 'login' %}">Log in here</a>.
+                    </p>
                 </div>
-            </form>
-
-            <p class="mt-4 text-center text-muted small">
-                Already have an account?
-                <a href="{% url 'login' %}">Log in here</a>.
-            </p>
+            </div>
         </div>
     </div>
 </div>
 {% endblock %}
-

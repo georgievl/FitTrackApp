@@ -2,30 +2,26 @@
 {% load crispy_forms_filters %}
 {% load crispy_forms_tags %}
 
-{% block title %}Login{% endblock %}
-
+{% block title %}Log In{% endblock %}
 {% block content %}
-<div class="d-flex justify-content-center align-items-center" style="min-height: calc(100vh - 120px);">
-    <div class="card shadow-sm" style="width: 100%; max-width: 420px;">
-        <div class="card-body p-4">
-            <h3 class="text-center mb-4">Log In to FitTrack</h3>
-
-            <form method="post">
-                {% csrf_token %}
-                {{ form|crispy }}
-
-                <div class="d-grid mt-3">
-                    <button type="submit" class="btn btn-primary rounded-pill">
-                        <i class="bi bi-box-arrow-in-right me-1"></i> Log In
-                    </button>
-                </div>
-            </form>
-
-            <p class="mt-4 text-center small">
-                Don't have an account?
-                <a href="{% url 'register' %}">Register here</a>.
-            </p>
+<div class="col-md-6 offset-md-3 py-5">
+  <div class="card shadow-sm">
+    <div class="card-body p-4">
+      <h2 class="text-center mb-4">Log In</h2>
+      <form method="post" novalidate>
+        {% csrf_token %}
+        {{ form|crispy }}
+        <div class="d-grid mt-3">
+          <button type="submit" class="btn btn-primary rounded-pill py-2">
+            <i class="bi bi-box-arrow-in-right me-1"></i> Log In
+          </button>
         </div>
+      </form>
+      <p class="mt-4 text-center text-muted">
+        Don't have an account?
+        <a href="{% url 'register' %}">Register here</a>.
+      </p>
     </div>
+  </div>
 </div>
 {% endblock %}
