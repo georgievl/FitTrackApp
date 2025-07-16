@@ -4,25 +4,12 @@
 {% block title %}Welcome{% endblock %}
 
 {% block content %}
-<!-- Hero Section with Background -->
 <div class="hero">
-  <div class="text-center" data-aos="fade-up" data-aos-duration="1000">
-    <h1 class="display-3 mb-3 text-white">Welcome to FitTrack</h1>
-    <p class="lead mb-4 text-white-50">Plan your workouts and meals effortlessly.</p>
-    <a href="{% url 'register' %}" class="btn btn-success btn-lg me-2">
-      <i class="bi bi-person-plus"></i> Get Started
-    </a>
-    <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg">
-      <i class="bi bi-box-arrow-in-right"></i> Log In
-    </a>
+  <div class="text-center">
+    <h1 class="display-3 mb-3">Welcome to FitTrack</h1>
+    <p class="lead mb-4">Plan your workouts and meals effortlessly.</p>
+    <a href="{% url 'register' %}" class="btn btn-success btn-lg me-2">Get Started</a>
+    <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg">Log In</a>
   </div>
 </div>
-
-<!-- Why Choose Section -->
-<section class="bg-light py-5 text-center">
-  <div class="container" data-aos="zoom-in" data-aos-delay="200">
-    <h2 class="mb-4">Why Choose FitTrack?</h2>
-    <p class="lead">Track your progress, plan your meals, and stay fit with ease.</p>
-  </div>
-</section>
 {% endblock %}

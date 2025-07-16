@@ -53,11 +53,16 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        weekday = datetime.now().strftime('%A')  # e.g., 'Wednesday'
+        weekday = datetime.now().strftime('%A')  # e.g., 'Monday'
 
         context['today'] = weekday
-        context['workout'] = WorkoutPlan.objects.filter(user=self.request.user, day=weekday).first()
-        context['meals'] = MealPlan.objects.filter(user=self.request.user, day=weekday).select_related('recipe')
+        context['workouts'] = WorkoutPlan.objects.filter(
+            user=self.request.user, day=weekday
+        ).prefetch_related('exercises')  # <-- Ensures efficiency
+
+        context['meals'] = MealPlan.objects.filter(
+            user=self.request.user, day=weekday
+        ).select_related('recipe')
 
         return context
 

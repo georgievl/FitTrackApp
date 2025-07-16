@@ -1,107 +1,106 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
 
 body {
-    background-color: #f8f9fa;
-}
-
-.navbar-brand {
-    font-weight: bold;
-    letter-spacing: 0.5px;
-}
-
-.card {
-    margin-top: 2rem;
-    border-radius: 12px;
-}
-
-textarea.form-control {
-    width: 100%;
-    max-width: 100%;
-    min-height: 100px;
-    box-sizing: border-box;
-}
-
-input, textarea {
-    display: block;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-body {
-  font-family: 'Poppins', sans-serif;
-  background-color: #f7f8fa;
-  color: #333;
-}
-
-.hero {
-  background: url('../images/fitness-bg.jpg') no-repeat center center;
-  background-size: cover;
-  min-height: 80vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4rem 1rem;
-  color: white;
-  text-shadow: 0 2px 6px rgba(0,0,0,0.5);
-}
-
-.btn-primary, .btn-success {
-  border-radius: 30px;
-  font-weight: 500;
-  padding: 0.6rem 1.2rem;
-  transition: all 0.2s;
-}
-.btn-primary:hover, .btn-success:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-}
-.hero::before {
-    content: "";
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0, 0, 0, 0.5);  /* dark overlay */
-    z-index: 1;
-}
-
-.hero > .text-center {
-    position: relative;
-    z-index: 2;
-}
-.hero {
-    position: relative;
-}
-.btn-lg {
-    padding: 0.75rem 2rem;
-    font-weight: 500;
-    border-radius: 50px;
-    transition: 0.3s ease;
-}
-
-.btn-lg:hover {
-    transform: scale(1.05);
-}
-body {
-    font-family: 'Inter', sans-serif;
-}
-.hero, .section-bg {
-    background-image: url('../images/fitness-bg.jpg');
+    font-family: 'Roboto', sans-serif;
+    background: url('../images/gym.jpg') no-repeat center center fixed;
     background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center;
-    padding: 5rem 2rem;
-    color: white;
+    color: #f1f1f1;
+    position: relative;
+    line-height: 1.6;
 }
-body {
-    background: url('../images/fitness-bg.jpg') no-repeat center center fixed;
-    background-size: cover;
-    background-color: #000; /* fallback color */
-    color: #fff; /* optional: makes text readable */
-}
+
 body::before {
     content: "";
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    background-color: rgba(0, 0, 0, 0.4);  /* black overlay */
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
     z-index: -1;
+}
+
+/* Text Readability */
+h1, h2, h3, h4, p, label, a, small {
+    color: #f9f9f9;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+/* Hero Section */
+.hero {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 85vh;
+    text-align: center;
+    padding: 3rem 1rem;
+}
+
+/* Card (Frosted Glass) */
+.card, .frosted-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+/* Buttons */
+.btn-primary, .btn-success, .btn-outline-success {
+    border-radius: 30px;
+    font-weight: 500;
+    padding: 0.6rem 1.3rem;
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover, .btn-success:hover, .btn-outline-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+
+/* Form Elements */
+input, textarea, select {
+    background-color: #fff;
+    color: #000;
+    border-radius: 8px;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Footer */
+footer {
+    background-color: rgba(0, 0, 0, 0.4);
+    color: #ddd;
+    padding: 1rem 0;
+    font-size: 0.9rem;
+}
+
+.text-muted,
+small,
+.list-group-item small {
+    color: #f1f1f1 !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+.helptext,
+ul.helptext,
+.form-text {
+    color: #f9f9f9;
+    font-size: 0.9rem;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+    margin-top: 0.25rem;
+}
+
+.text-light.small {
+    color: #f1f1f1;
+    font-size: 0.85rem;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.list-group-item {
+    color: #f9f9f9 !important;
+    background-color: rgba(255, 255, 255, 0.05); /* optional subtle background */
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1); /* subtle border if needed */
 }

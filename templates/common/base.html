@@ -69,10 +69,10 @@
         {% endblock %}
     </main>
 
-    <!-- Footer -->
+<!-- Footer -->
 <footer class="bg-dark text-light py-4 mt-auto">
   <div class="container text-center small">
-    © {{ now|date:"Y" }} FitTrack • <a href="{% url 'about' %}" class="text-light">About</a> • <a href="{% url 'login' %}" class="text-light">Login</a>
+    © {% now "Y" %} FitTrack • Empowering your fitness journey
   </div>
 </footer>
 
