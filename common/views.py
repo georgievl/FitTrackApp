@@ -42,7 +42,7 @@ class ProfileUpdateView(LoginRequiredMixin, UpdateView):
     model = UserProfile
     form_class = UserProfileForm
     template_name = 'common/profile.html'
-    success_url = reverse_lazy('profile')
+    success_url = reverse_lazy('dashboard')
 
     def get_object(self, queryset=None):
         # Always return the profile for the currently logged-in user
@@ -53,17 +53,11 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        weekday = datetime.now().strftime('%A')  # e.g., 'Monday'
-
-        context['today'] = weekday
-        context['workouts'] = WorkoutPlan.objects.filter(
-            user=self.request.user, day=weekday
-        ).prefetch_related('exercises')  # <-- Ensures efficiency
-
-        context['meals'] = MealPlan.objects.filter(
-            user=self.request.user, day=weekday
-        ).select_related('recipe')
-
+        weekday = datetime.now().strftime('%A')
+        context['today']        = weekday
+        context['workouts']     = WorkoutPlan.objects.filter(user=self.request.user, day=weekday)
+        context['meals']        = MealPlan.objects.filter(user=self.request.user, day=weekday)
+        context['current_goal'] = self.request.user.userprofile.goal
         return context
 
 @login_required
@@ -177,18 +171,14 @@ def update_meal_plan(request, pk):
         'btn_label': 'Save Changes'
     })
 
-
 @login_required
 def delete_meal_plan(request, pk):
-    meal = get_object_or_404(MealPlan, pk=pk, user=request.user)
-
-    if request.method == 'POST':
-        meal.delete()
-        messages.warning(request, "Meal plan deleted.")
+    try:
+        meal = get_object_or_404(MealPlan, pk=pk, user=request.user)
+        if request.method=='POST':
+            meal.delete()
+            messages.success(request, "Meal plan deleted.")
+            return redirect('dashboard')
+    except Exception as e:
+        messages.error(request, f"Error deleting meal: {e}")
         return redirect('dashboard')
-
-    return render(request, 'common/confirm_delete.html', {
-        'object': meal,
-        'title': 'Delete Meal Plan',
-        'cancel_url': 'dashboard'
-    })

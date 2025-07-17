@@ -31,7 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 PROJECT_APPS = [
-    'common',
+    'common.apps.CommonConfig',
 ]
 
 INSTALLED_APPS = [

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import UserProfile, WorkoutPlan, WorkoutExercise, MealPlan, Recipe
+from .models import UserProfile, WorkoutPlan, WorkoutExercise, MealPlan, Recipe, GoalPlan
 
 
 @admin.register(UserProfile)
@@ -77,3 +77,10 @@ class RecipeAdmin(admin.ModelAdmin):
             'fields': ('ingredients', 'instructions')
         }),
     )
+
+@admin.register(GoalPlan)
+class GoalPlanAdmin(admin.ModelAdmin):
+    list_display  = ('name','length')
+    list_filter   = ('length',)
+    search_fields = ('name',)
+    ordering      = ('length',)

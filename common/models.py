@@ -1,11 +1,12 @@
 from django.contrib.auth.models import User
 from django.db import models
 
-from common.choices import WeekdayChoices, MealTimeChoices
+from common.choices import WeekdayChoices, MealTimeChoices, DayPlanChoices
 
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    goal = models.ForeignKey('GoalPlan', null=True, on_delete=models.SET_NULL)
     age = models.PositiveIntegerField(null=True, blank=True)
     weight = models.FloatField(null=True, blank=True)
     height = models.FloatField(null=True, blank=True)
@@ -51,3 +52,11 @@ class Recipe(models.Model):
     def __str__(self):
         return self.title
 
+class GoalPlan(models.Model):
+    length = models.CharField(max_length=20, choices=DayPlanChoices, unique=True)
+    name = models.CharField(max_length=50)            # “Summer Shred,” etc.
+    description = models.TextField(blank=True)
+    background_image = models.ImageField(upload_to="goals/")  # for dashboard
+
+    def __str__(self):
+        return f"{self.length}‑Day: {self.name}"

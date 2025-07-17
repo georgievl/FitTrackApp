@@ -7,7 +7,7 @@ from .models import UserProfile, WorkoutPlan, WorkoutExercise, MealPlan, Recipe
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ['age', 'weight', 'height', 'fitness_goal']
+        fields = ['age', 'weight', 'height', 'fitness_goal', 'goal']
         widgets = {
             'fitness_goal': forms.TextInput(attrs={
                 'rows': 4,
@@ -19,10 +19,12 @@ class UserProfileForm(forms.ModelForm):
 class WorkoutPlanForm(forms.ModelForm):
     class Meta:
         model = WorkoutPlan
-        fields = ['day', 'title', 'notes']
-        widgets = {
-            'notes': forms.Textarea(attrs={'rows': 3}),
-        }
+        fields = ['day','title','notes']
+    def clean_day(self):
+        day = self.cleaned_data['day']
+        if WorkoutPlan.objects.filter(user=self.instance.user or self.initial['user'], day=day).exclude(pk=self.instance.pk).exists():
+            raise forms.ValidationError("You already have a plan for this day.")
+        return day
 
 WorkoutExerciseFormSet = inlineformset_factory(
     WorkoutPlan,
@@ -46,3 +48,8 @@ class RecipeForm(forms.ModelForm):
     class Meta:
         model = Recipe
         fields = ['title', 'ingredients', 'instructions', 'calories']
+
+class ChooseGoalForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['goal']
