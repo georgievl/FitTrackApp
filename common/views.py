@@ -58,36 +58,63 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         context['workouts']     = WorkoutPlan.objects.filter(user=self.request.user, day=weekday)
         context['meals']        = MealPlan.objects.filter(user=self.request.user, day=weekday)
         context['current_goal'] = self.request.user.userprofile.goal
+
+        goal_info = None
+        if context['current_goal']:
+            length = int(context['current_goal'].length)
+            if length == 30:
+                goal_info = {
+                    'weekly_workouts': 5,
+                    'cheat_days': 2,
+                    'meals_per_day': 5,
+                }
+            elif length == 60:
+                goal_info = {
+                    'weekly_workouts': 6,
+                    'cheat_days': 1,
+                    'meals_per_day': 6,
+                }
+            else:  # 90‑day
+                goal_info = {
+                    'weekly_workouts': 7,
+                    'cheat_days': 0,
+                    'meals_per_day': 7,
+                }
+        context['goal_info'] = goal_info
+
         return context
 
 @login_required
 def create_workout_plan(request):
+
     if request.method == 'POST':
         form = WorkoutPlanForm(request.POST)
-        formset = WorkoutExerciseFormSet(request.POST)
-        if form.is_valid() and formset.is_valid():
+
+        if form.is_valid():
             plan = form.save(commit=False)
             plan.user = request.user
             plan.save()
-            formset.instance = plan
-            formset.save()
-            return redirect('dashboard')
+
+            formset = WorkoutExerciseFormSet(request.POST, instance=plan)
+            if formset.is_valid():
+                formset.save()
+                messages.success(request, "Workout plan created successfully.")
+                return redirect('dashboard')
+        else:
+            formset = WorkoutExerciseFormSet(request.POST)
+
     else:
-        form = WorkoutPlanForm()
+        form    = WorkoutPlanForm()
         formset = WorkoutExerciseFormSet()
 
     return render(request, 'common/workout_plan_form.html', {
-        'form': form,
+        'form':    form,
         'formset': formset,
     })
 
-from datetime import datetime
-from django.shortcuts import render
-from .models import WorkoutPlan, MealPlan
-
 @login_required
 def dashboard(request):
-    today = datetime.today().strftime('%A')  # e.g. "Saturday"
+    today = datetime.today().strftime('%A')
 
     workout = WorkoutPlan.objects.filter(user=request.user, day=today).first()
     meals = MealPlan.objects.filter(user=request.user, day=today)
@@ -173,12 +200,15 @@ def update_meal_plan(request, pk):
 
 @login_required
 def delete_meal_plan(request, pk):
-    try:
-        meal = get_object_or_404(MealPlan, pk=pk, user=request.user)
-        if request.method=='POST':
-            meal.delete()
-            messages.success(request, "Meal plan deleted.")
-            return redirect('dashboard')
-    except Exception as e:
-        messages.error(request, f"Error deleting meal: {e}")
+    meal = get_object_or_404(MealPlan, pk=pk, user=request.user)
+
+    if request.method == 'POST':
+        meal.delete()
+        messages.warning(request, "Meal plan deleted.")
         return redirect('dashboard')
+
+    return render(request, 'common/confirm_delete.html', {
+        'object': meal,
+        'title': 'Delete Meal Plan',
+        'cancel_url': 'dashboard',
+    })

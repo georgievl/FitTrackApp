@@ -13,7 +13,7 @@ class UserProfileAdmin(admin.ModelAdmin):
             'fields': ('user',)
         }),
         ('Personal Info', {
-            'fields': ('age', 'weight', 'height', 'fitness_goal')
+            'fields': ('age', 'weight', 'height', )
         }),
     )
 
