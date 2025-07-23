@@ -5,17 +5,14 @@ from django.dispatch import receiver
 
 @receiver(post_migrate)
 def create_user_groups(sender, **kwargs):
-    # Avoid running for non-auth app
     if sender.name != 'common':
         return
 
-    # Define groups
     groups = {
         'Super Admin': {
             'permissions': Permission.objects.all()
         },
         'Staff Admin': {
-            # limited: add/change/delete only for workout, meal, recipe
             'model_perms': ['add', 'change', 'delete'],
             'models': ['workoutplan', 'mealplan', 'recipe']
         }
@@ -34,7 +31,6 @@ def create_user_groups(sender, **kwargs):
         group.permissions.set(perms)
         group.save()
 
-### common/apps.py
 from django.apps import AppConfig
 
 class CommonConfig(AppConfig):

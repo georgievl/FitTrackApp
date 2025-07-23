@@ -11,30 +11,33 @@
 {% endblock %}
 
 {% block content %}
-
   <div class="hero mb-4">
-    <div class="text-center text-white" style="text-shadow: 0 1px 3px rgba(0,0,0,0.8);">
-      {% if current_goal and goal_info %}
+    <div class="text-center text-white" style="text-shadow:0 1px 3px rgba(0,0,0,0.8);">
+      {% if current_goal %}
         <h1 class="display-4 mb-2">{{ current_goal.name }}</h1>
         <p class="lead">{{ current_goal.description }}</p>
-          <div class="card mb-4 shadow-sm mx-auto" style="max-width: 700px;">
-          <div class="card-header bg-secondary text-white">
-            <i class="bi bi-list-nested me-2"></i> Program Structure
-          </div>
-          <div class="card-body">
-            <div class="row text-center">
-              <div class="col-sm-4 mb-3">
-                <h5>{{ goal_info.weekly_workouts }} Workouts/Week</h5>
-              </div>
-              <div class="col-sm-4 mb-3">
-                <h5>{{ goal_info.cheat_days }} Cheat Days/Week</h5>
-              </div>
-              <div class="col-sm-4 mb-3">
-                <h5>{{ goal_info.meals_per_day }} Meals/Day</h5>
+
+        {% if goal_info %}
+          <div class="card mb-4 shadow-sm mx-auto" style="max-width:700px;">
+            <div class="card-header bg-secondary text-white">
+              <i class="bi bi-list-nested me-2"></i> Program Structure
+            </div>
+            <div class="card-body">
+              <div class="row text-center">
+                <div class="col-sm-4 mb-3">
+                  <h5>{{ goal_info.weekly_workouts }} Workouts/Week</h5>
+                </div>
+                <div class="col-sm-4 mb-3">
+                  <h5>{{ goal_info.cheat_days }} Cheat Days/Week</h5>
+                </div>
+                <div class="col-sm-4 mb-3">
+                  <h5>{{ goal_info.meals_per_day }} Meals/Day</h5>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        {% endif %}
+
       {% else %}
         <h1 class="display-4 mb-2">Welcome to Your Dashboard</h1>
         <p class="lead">Select a 30, 60 or 90‑Day goal in your Profile to get started.</p>
@@ -44,67 +47,83 @@
 
   <div class="row justify-content-center">
     <div class="col-md-10 col-lg-8">
-
       <div class="text-center mb-5">
         <h2>Today is {{ today }}</h2>
       </div>
 
-        {% if workouts %}
-          <div class="card shadow-sm mt-5">
-            <div class="card-header bg-primary text-white">
-              <i class="bi bi-dumbbell me-2"></i> Your Workouts for Today
-            </div>
-            <div class="card-body">
-              <ul class="list-group">
-                {% for workout in workouts %}
-                  {% for exercise in workout.exercises.all %}
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                      <div>
-                        <strong>{{ exercise.name }}</strong> —
-                        <span class="text-muted">
-                          {{ exercise.sets }} × {{ exercise.reps }} reps
-                        </span>
-                      </div>
-                      <div>
-                        <a href="{% url 'update_workout_plan' workout.pk %}" class="text-primary me-2">
-                          <i class="bi bi-pencil-square"></i>
-                        </a>
-                        <a href="{% url 'delete_workout_plan' workout.pk %}" class="text-danger">
-                          <i class="bi bi-trash"></i>
-                        </a>
-                      </div>
-                    </li>
-                  {% endfor %}
-                {% empty %}
-                  <li class="list-group-item text-muted">No exercises scheduled for today.</li>
+      {% if workouts %}
+        <div class="card shadow-sm mb-4">
+          <div class="card-header bg-primary text-white">
+            <i class="bi bi-heart-pulse"></i> Your Workouts for Today
+          </div>
+          <div class="card-body">
+            <ul class="list-group list-group-flush">
+              {% for workout in workouts %}
+                <li class="list-group-item">
+                  <a href="{% url 'workout_plan_detail' workout.pk %}"
+                     class="fw-bold text-decoration-none">
+                    {{ workout.title }}
+                  </a>
+                </li>
+                {% for exercise in workout.exercises.all %}
+                  <li class="list-group-item ps-4 d-flex justify-content-between">
+                    <div>
+                      <strong>{{ exercise.name }}</strong> —
+                      <span class="text-muted">
+                        {{ exercise.sets }}×{{ exercise.reps }} reps
+                      </span>
+                    </div>
+                    <div>
+                      <a href="{% url 'update_workout_plan' workout.pk %}" class="text-primary me-2">
+                        <i class="bi bi-pencil-square"></i>
+                      </a>
+                      <a href="{% url 'delete_workout_plan' workout.pk %}" class="text-danger">
+                        <i class="bi bi-trash"></i>
+                      </a>
+                    </div>
+                  </li>
                 {% endfor %}
-              </ul>
-            </div>
+              {% empty %}
+                <li class="list-group-item text-muted">No workouts scheduled for today.</li>
+              {% endfor %}
+            </ul>
           </div>
-          <div class="text-end mt-3">
-            <a href="{% url 'create_workout_plan' %}" class="btn btn-outline-primary">
-              <i class="bi bi-plus-circle"></i> Add Another Workout
-            </a>
-          </div>
-        {% else %}
-          <p class="text-muted text-center">
-            No workouts planned for today.
-            <a href="{% url 'create_workout_plan' %}">Create one now</a>.
-          </p>
-        {% endif %}
+        </div>
 
-        {% if meals %}
-        <div class="card shadow-sm mt-5">
+        <div class="text-end mb-5">
+          <a href="{% url 'create_workout_plan' %}" class="btn btn-outline-primary">
+            <i class="bi bi-plus-circle me-1"></i> Add Another Workout
+          </a>
+        </div>
+      {% else %}
+        <p class="text-muted text-center mb-5">
+          No workouts planned for today.
+          <a href="{% url 'create_workout_plan' %}">Create one now</a>.
+        </p>
+      {% endif %}
+
+      {% if meals %}
+        <div class="card shadow-sm mb-4">
           <div class="card-header bg-success text-white">
             <i class="bi bi-egg-fried me-2"></i> Your Meals for Today
           </div>
           <div class="card-body">
-            <ul class="list-group">
+            <ul class="list-group list-group-flush">
               {% for meal in meals %}
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                   <div>
-                    <strong>{{ meal.meal_time }}</strong>: {{ meal.recipe.title }} —
-                    <span class="text-muted">{{ meal.recipe.calories }} cal</span>
+                    <strong>{{ meal.meal_time }}</strong>:
+                    {% if meal.recipe and meal.recipe.pk %}
+                        <a href="{% url 'recipe_detail' meal.recipe.pk %}"
+                           class="fw-bold text-decoration-none">
+                          {{ meal.recipe.title }}
+                        </a>
+                    {% else %}
+                      {{ meal.recipe.title }}
+                    {% endif %}
+                    <span class="text-muted">
+                      {{ meal.recipe.calories }} cal
+                    </span>
                   </div>
                   <div>
                     <a href="{% url 'update_meal_plan' meal.pk %}" class="text-primary me-2">
@@ -116,24 +135,24 @@
                   </div>
                 </li>
               {% empty %}
-                <li class="list-group-item text-muted">No meals planned.</li>
+                <li class="list-group-item text-muted">No meals scheduled for today.</li>
               {% endfor %}
             </ul>
           </div>
         </div>
-        <div class="text-end mt-3">
+
+        <div class="text-end">
           <a href="{% url 'create_meal_plan' %}" class="btn btn-outline-success">
-            <i class="bi bi-plus-circle"></i> Add Another Meal
+            <i class="bi bi-plus-circle me-1"></i> Add Another Meal
           </a>
         </div>
-        {% else %}
+      {% else %}
         <p class="text-muted text-center">
           No meals planned for today.
           <a href="{% url 'create_meal_plan' %}">Add meals</a>.
         </p>
-        {% endif %}
+      {% endif %}
 
     </div>
   </div>
-
 {% endblock %}

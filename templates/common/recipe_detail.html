@@ -1,0 +1,49 @@
+{% extends 'common/base.html' %}
+{% load static %}
+
+{% block title %}{{ object.title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-10 col-lg-8">
+
+    <div class="card mb-4 shadow-sm">
+      {% if object.image_url %}
+        <img
+          src="{{ object.image_url.url }}"
+          class="card-img-top img-fluid"
+          alt="{{ object.title }}"
+          style="object-fit: cover; max-height: 400px;"
+        >
+      {% endif %}
+
+      <div class="card-body">
+        <h6 class="text-muted">{{ object.name }}</h6>
+        <h2 class="card-description">{{ object.description }}</h2>
+
+        <div class="d-flex flex-wrap text-muted mb-3">
+          <div class="me-4">
+            <i class="bi bi-clock me-1"></i> Prep: {{ object.prep_time }} min
+          </div>
+          <div class="me-4">
+            <i class="bi bi-fire me-1"></i> Cook: {{ object.cook_time }} min
+          </div>
+          {% if object.calories %}
+            <div>
+              <i class="bi bi-egg me-1"></i> {{ object.calories }} cal
+            </div>
+          {% endif %}
+        </div>
+
+        <h5>Ingredients</h5>
+        <p class="card-text">{{ object.ingredients|linebreaks }}</p>
+
+        <h5>Instructions</h5>
+        <p class="card-text">{{ object.cooking_instructions|linebreaks }}</p>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

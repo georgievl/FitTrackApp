@@ -4,13 +4,12 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect, render, get_object_or_404
-from django.views.generic import TemplateView, FormView, UpdateView
+from django.views.generic import TemplateView, FormView, UpdateView, DetailView, DeleteView, ListView, CreateView
 from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import reverse_lazy
 from django.contrib.auth.forms import UserCreationForm
-
-from common.forms import UserProfileForm, WorkoutPlanForm, WorkoutExerciseFormSet, MealPlanForm
-from common.models import UserProfile, WorkoutPlan, MealPlan
+from common.forms import UserProfileForm, WorkoutPlanForm, WorkoutExerciseFormSet, MealPlanForm, RecipeForm
+from common.models import UserProfile, WorkoutPlan, MealPlan, Recipe
 
 
 class LandingPageView(TemplateView):
@@ -45,7 +44,6 @@ class ProfileUpdateView(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy('dashboard')
 
     def get_object(self, queryset=None):
-        # Always return the profile for the currently logged-in user
         return UserProfile.objects.get_or_create(user=self.request.user)[0]
 
 class DashboardView(LoginRequiredMixin, TemplateView):
@@ -74,7 +72,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
                     'cheat_days': 1,
                     'meals_per_day': 6,
                 }
-            else:  # 90‑day
+            else:
                 goal_info = {
                     'weekly_workouts': 7,
                     'cheat_days': 0,
@@ -111,6 +109,13 @@ def create_workout_plan(request):
         'form':    form,
         'formset': formset,
     })
+
+class WorkoutPlanDetailView(LoginRequiredMixin, DetailView):
+    model = WorkoutPlan
+    template_name = 'common/workout_plan_detail.html'
+
+    def get_queryset(self):
+        return WorkoutPlan.objects.filter(user=self.request.user)
 
 @login_required
 def dashboard(request):
@@ -178,6 +183,9 @@ def create_meal_plan(request):
         'btn_label': 'Add Meal'
     })
 
+class MealPlanDetailView(LoginRequiredMixin, DetailView):
+    model = Recipe
+    template_name = 'common/recipe_detail.html'
 
 @login_required
 def update_meal_plan(request, pk):
@@ -212,3 +220,34 @@ def delete_meal_plan(request, pk):
         'title': 'Delete Meal Plan',
         'cancel_url': 'dashboard',
     })
+
+class RecipeCreateView(LoginRequiredMixin, CreateView):
+    model = Recipe
+    form_class = RecipeForm
+    template_name = 'common/recipe_form.html'
+    success_url = reverse_lazy('recipe_list')
+class RecipeListView(ListView):
+    model = Recipe
+    template_name = 'common/recipe_list.html'
+    context_object_name = 'recipes'
+
+class RecipeDetailView(LoginRequiredMixin, DetailView):
+    model = Recipe
+    template_name = 'common/recipe_detail.html'
+
+class RecipeUpdateView(LoginRequiredMixin, UpdateView):
+    model = Recipe
+    form_class = RecipeForm
+    template_name = 'common/recipe_form.html'
+    def get_success_url(self):
+        return reverse_lazy('recipe_detail', kwargs={'pk': self.object.pk})
+
+class RecipeDeleteView(LoginRequiredMixin, DeleteView):
+    model = Recipe
+    template_name = 'common/confirm_delete.html'
+    success_url = reverse_lazy('recipe_list')
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['title'] = 'Delete Recipe'
+        ctx['cancel_url'] = 'recipe_list'
+        return ctx

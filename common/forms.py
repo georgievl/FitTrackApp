@@ -42,7 +42,7 @@ class MealPlanForm(forms.ModelForm):
 class RecipeForm(forms.ModelForm):
     class Meta:
         model = Recipe
-        fields = ['title', 'ingredients', 'instructions', 'calories']
+        fields = ['title', 'image_url', 'prep_time', 'cook_time', 'ingredients', 'cooking_instructions', 'calories']
 
 class ChooseGoalForm(forms.ModelForm):
     class Meta:
