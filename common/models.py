@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator
 from django.db import models
-from common.choices import WeekdayChoices, MealTimeChoices, DayPlanChoices
+from common.choices import WeekdayChoices, DayPlanChoices, MealChoiceChoices, DifficultyChoices
 
 UserModel = get_user_model()
 
@@ -19,30 +19,33 @@ class UserProfile(models.Model):
 class WorkoutPlan(models.Model):
     user = models.ForeignKey(UserModel, on_delete=models.CASCADE)
     day = models.CharField(max_length=9, choices=WeekdayChoices)
-    title = models.CharField(max_length=100)
-    notes = models.TextField(blank=True)
+    workout_type = models.CharField(
+        max_length=20,
+        choices=DifficultyChoices,
+        default=DifficultyChoices.BEGINNER
+    )
 
     def __str__(self):
-        return f"{self.user.username} - {self.day} Workout"
+        return f"{self.user.username} – {self.day} ({self.get_workout_type_display()})"
 
 class WorkoutExercise(models.Model):
-    user = models.ForeignKey(WorkoutPlan, on_delete=models.CASCADE, related_name='exercises')
-    name = models.CharField(max_length=100)
+    plan = models.ForeignKey(WorkoutPlan, on_delete=models.CASCADE, related_name='exercises')
+    exercise = models.ForeignKey('Exercise', on_delete=models.CASCADE)
     sets = models.PositiveIntegerField()
     reps = models.PositiveIntegerField()
     rest_seconds = models.PositiveIntegerField(default=60)
 
     def __str__(self):
-        return f"{self.name} ({self.sets}x{self.reps})"
+        return f"{self.exercise.title} ({self.sets}×{self.reps})"
 
 class MealPlan(models.Model):
     user = models.ForeignKey(UserModel, on_delete=models.CASCADE)
     day = models.CharField(max_length=9, choices=WeekdayChoices)
-    meal_time = models.CharField(max_length=20, choices=MealTimeChoices)
+    meal_choice = models.CharField(max_length=20, choices=MealChoiceChoices)
     recipe = models.ForeignKey('Recipe', on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.user.username} - {self.day} {self.meal_time}"
+        return f"{self.user.username} - {self.day} {self.meal_choice}"
 
 class Recipe(models.Model):
     title = models.CharField(max_length=100)
@@ -65,3 +68,20 @@ class GoalPlan(models.Model):
 
     def __str__(self):
         return f"{self.length}‑Day: {self.name}"
+
+class Exercise(models.Model):
+    title = models.CharField(max_length=100)
+    image = models.ImageField(upload_to='exercise/', blank=True, null=True)
+    target_muscle_group = models.CharField(max_length=20)
+    equipment_required = models.CharField(max_length=50)
+    experience_level = models.CharField(
+        max_length=20,
+        choices=DifficultyChoices,
+        default=DifficultyChoices.BEGINNER
+    )
+    overview = models.TextField()
+    instructions = models.TextField()
+    tips = models.TextField()
+
+    def __str__(self):
+        return self.title

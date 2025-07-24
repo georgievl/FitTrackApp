@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import inlineformset_factory
 
-from .models import UserProfile, WorkoutPlan, WorkoutExercise, MealPlan, Recipe
+from .models import UserProfile, WorkoutPlan, WorkoutExercise, MealPlan, Recipe, Exercise
 
 
 class UserProfileForm(forms.ModelForm):
@@ -18,13 +18,13 @@ class UserProfileForm(forms.ModelForm):
 
 class WorkoutPlanForm(forms.ModelForm):
     class Meta:
-        model = WorkoutPlan
-        fields = ['day','title','notes']
+        model  = WorkoutPlan
+        fields = ['day', 'workout_type']
 
 WorkoutExerciseFormSet = inlineformset_factory(
-    WorkoutPlan,
-    WorkoutExercise,
-    fields=['name','sets','reps','rest_seconds'],
+    parent_model=WorkoutPlan,
+    model=WorkoutExercise,
+    fields=('exercise', 'sets', 'reps', 'rest_seconds'),
     extra=1,
     can_delete=True,
 )
@@ -32,19 +32,33 @@ WorkoutExerciseFormSet = inlineformset_factory(
 class WorkoutExerciseForm(forms.ModelForm):
     class Meta:
         model = WorkoutExercise
-        fields = ['name', 'sets', 'reps', 'rest_seconds']
+        fields = ['exercise', 'sets', 'reps', 'rest_seconds']
 
 class MealPlanForm(forms.ModelForm):
     class Meta:
         model = MealPlan
-        fields = ['day', 'meal_time', 'recipe']
+        fields = ['day', 'meal_choice', 'recipe']
 
 class RecipeForm(forms.ModelForm):
     class Meta:
         model = Recipe
-        fields = ['title', 'image_url', 'prep_time', 'cook_time', 'ingredients', 'cooking_instructions', 'calories']
+        fields = ['title', 'image_url', 'description', 'prep_time', 'cook_time', 'ingredients', 'cooking_instructions', 'calories']
 
 class ChooseGoalForm(forms.ModelForm):
     class Meta:
         model = UserProfile
         fields = ['goal']
+
+class ExerciseForm(forms.ModelForm):
+    class Meta:
+        model = Exercise
+        fields = [
+            'title',
+            'image',
+            'target_muscle_group',
+            'equipment_required',
+            'experience_level',
+            'overview',
+            'instructions',
+            'tips',
+        ]

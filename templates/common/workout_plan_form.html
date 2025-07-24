@@ -1,34 +1,50 @@
 {% extends 'common/base.html' %}
 {% load crispy_forms_filters %}
-{% load crispy_forms_tags %}
 
-{% block title %}New Workout Plan{% endblock %}
+{% block title %}
+  {% if form.instance.pk %}Edit Workout Plan{% else %}New Workout Plan{% endif %}
+{% endblock %}
 
 {% block content %}
-<div class="card shadow-sm mx-auto" style="max-width:700px;">
-  <div class="card-body">
-    <h3 class="text-center mb-4">Create Workout Plan</h3>
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <h3 class="text-center mb-4">
+          {% if form.instance.pk %}Edit Workout Plan{% else %}Create Workout Plan{% endif %}
+        </h3>
 
-    <form method="post" novalidate>
-      {% csrf_token %}
+        <form method="post" novalidate>
+          {% csrf_token %}
+          {{ form|crispy }}
 
-      {{ form|crispy }}
+          <h5 class="mt-4">Exercises</h5>
+          {{ formset.management_form }}
 
-      <h5 class="mt-4">Exercises</h5>
-      {{ formset.management_form }}
+          {% if form.instance.pk %}
+            {% for subform in formset %}
+              {% if subform.instance.pk %}
+                <div class="border rounded p-3 mb-3">
+                  {{ subform|crispy }}
+                </div>
+              {% endif %}
+            {% endfor %}
+          {% else %}
+            {% for subform in formset %}
+              <div class="border rounded p-3 mb-3">
+                {{ subform|crispy }}
+              </div>
+            {% endfor %}
+          {% endif %}
 
-      {% for subform in formset %}
-        <div class="border rounded p-3 mb-3">
-          {{ subform|crispy }}
-        </div>
-      {% endfor %}
-
-      <div class="d-grid mt-3">
-        <button type="submit" class="btn btn-primary rounded-pill py-2">
-          <i class="bi bi-plus-circle me-1"></i> Save Plan
-        </button>
+          <div class="d-grid mt-3">
+            <button type="submit" class="btn btn-success rounded-pill py-2">
+              {% if form.instance.pk %}Save Changes{% else %}Add Workout Plan{% endif %}
+            </button>
+          </div>
+        </form>
       </div>
-    </form>
+    </div>
   </div>
 </div>
 {% endblock %}

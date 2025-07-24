@@ -8,8 +8,8 @@ from django.views.generic import TemplateView, FormView, UpdateView, DetailView,
 from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import reverse_lazy
 from django.contrib.auth.forms import UserCreationForm
-from common.forms import UserProfileForm, WorkoutPlanForm, WorkoutExerciseFormSet, MealPlanForm, RecipeForm
-from common.models import UserProfile, WorkoutPlan, MealPlan, Recipe
+from common.forms import UserProfileForm, WorkoutPlanForm, WorkoutExerciseFormSet, MealPlanForm, RecipeForm, ExerciseForm
+from common.models import UserProfile, WorkoutPlan, MealPlan, Recipe, Exercise
 
 
 class LandingPageView(TemplateView):
@@ -84,30 +84,26 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
 @login_required
 def create_workout_plan(request):
-
     if request.method == 'POST':
         form = WorkoutPlanForm(request.POST)
-
-        if form.is_valid():
+        formset = WorkoutExerciseFormSet(request.POST)
+        if form.is_valid() and formset.is_valid():
             plan = form.save(commit=False)
             plan.user = request.user
             plan.save()
-
-            formset = WorkoutExerciseFormSet(request.POST, instance=plan)
-            if formset.is_valid():
-                formset.save()
-                messages.success(request, "Workout plan created successfully.")
-                return redirect('dashboard')
-        else:
-            formset = WorkoutExerciseFormSet(request.POST)
-
+            formset.instance = plan
+            formset.save()
+            messages.success(request, "Workout plan created successfully.")
+            return redirect('dashboard')
     else:
-        form    = WorkoutPlanForm()
+        form = WorkoutPlanForm()
         formset = WorkoutExerciseFormSet()
 
     return render(request, 'common/workout_plan_form.html', {
-        'form':    form,
+        'form': form,
         'formset': formset,
+        'title': 'Create Workout Plan',
+        'btn_label': 'Create Workout Plan',
     })
 
 class WorkoutPlanDetailView(LoginRequiredMixin, DetailView):
@@ -118,51 +114,74 @@ class WorkoutPlanDetailView(LoginRequiredMixin, DetailView):
         return WorkoutPlan.objects.filter(user=self.request.user)
 
 @login_required
-def dashboard(request):
-    today = datetime.today().strftime('%A')
-
-    workout = WorkoutPlan.objects.filter(user=request.user, day=today).first()
-    meals = MealPlan.objects.filter(user=request.user, day=today)
-
-    return render(request, 'common/dashboard.html', {
-        'today': today,
-        'workout': workout,
-        'meals': meals,
-    })
-
-@login_required
 def update_workout_plan(request, pk):
     plan = get_object_or_404(WorkoutPlan, pk=pk, user=request.user)
-
     if request.method == 'POST':
-        form = WorkoutPlanForm(request.POST, instance=plan)
-        if form.is_valid():
+        form    = WorkoutPlanForm(request.POST, instance=plan)
+        formset = WorkoutExerciseFormSet(request.POST, instance=plan)
+        if form.is_valid() and formset.is_valid():
             form.save()
+            formset.save()
             messages.success(request, "Workout plan updated successfully.")
             return redirect('dashboard')
     else:
-        form = WorkoutPlanForm(instance=plan)
+        form    = WorkoutPlanForm(instance=plan)
+        formset = WorkoutExerciseFormSet(instance=plan)
 
-    return render(request, 'common/workout_form.html', {
-        'form': form,
-        'title': 'Update Workout Plan',
-        'btn_label': 'Update Plan'
+    return render(request, 'common/workout_plan_form.html', {
+        'form':      form,
+        'formset':   formset,
+        'title':     'Edit Workout Plan',
+        'btn_label': 'Save Changes',
     })
 
-@login_required
-def delete_workout_plan(request, pk):
-    plan = get_object_or_404(WorkoutPlan, pk=pk, user=request.user)
+class WorkoutPlanDeleteView(LoginRequiredMixin, DeleteView):
+    model = WorkoutPlan
+    template_name = 'common/confirm_delete.html'
+    success_url = reverse_lazy('dashboard')
 
-    if request.method == 'POST':
-        plan.delete()
-        messages.warning(request, "Workout plan deleted.")
-        return redirect('dashboard')
+    def get_queryset(self):
+        return WorkoutPlan.objects.filter(user=self.request.user)
 
-    return render(request, 'common/confirm_delete.html', {
-        'object': plan,
-        'title': 'Delete Workout Plan',
-        'cancel_url': 'dashboard'
-    })
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title']      = 'Delete Workout Plan'
+        context['cancel_url'] = 'dashboard'
+        return context
+
+class ExerciseCreateView(LoginRequiredMixin, CreateView):
+    model = Exercise
+    form_class = ExerciseForm
+    template_name = 'common/exercise_form.html'
+    success_url = reverse_lazy('exercise_list')
+
+class ExerciseListView(LoginRequiredMixin, ListView):
+    model = Exercise
+    template_name = 'common/exercise_list.html'
+    context_object_name = 'exercises'
+
+class ExerciseDetailView(LoginRequiredMixin, DetailView):
+    model = Exercise
+    template_name = 'common/exercise_detail.html'
+
+class ExerciseUpdateView(LoginRequiredMixin, UpdateView):
+    model = Exercise
+    form_class = ExerciseForm
+    template_name = 'common/exercise_form.html'
+
+    def get_success_url(self):
+        return reverse_lazy('exercise_detail', kwargs={'pk': self.object.pk})
+
+class ExerciseDeleteView(LoginRequiredMixin, DeleteView):
+    model = Exercise
+    template_name = 'common/confirm_delete.html'
+    success_url = reverse_lazy('dashboard')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Delete Exercise'
+        context['cancel_url'] = 'exercise_list'
+        return context
 
 @login_required
 def create_meal_plan(request):
@@ -247,7 +266,7 @@ class RecipeDeleteView(LoginRequiredMixin, DeleteView):
     template_name = 'common/confirm_delete.html'
     success_url = reverse_lazy('recipe_list')
     def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        ctx['title'] = 'Delete Recipe'
-        ctx['cancel_url'] = 'recipe_list'
-        return ctx
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Delete Recipe'
+        context['cancel_url'] = 'recipe_list'
+        return context
