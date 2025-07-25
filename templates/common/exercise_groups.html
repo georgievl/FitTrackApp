@@ -1,0 +1,16 @@
+{% extends 'common/base.html' %}
+{% block title %}Exercise Groups{% endblock %}
+
+{% block content %}
+  <h2>Browse by Muscle Group</h2>
+  <div class="row">
+    {% for g in groups %}
+      <div class="col-md-4 mb-3">
+        <a href="{% url 'exercise_list_by_group' g.slug %}"
+           class="btn btn-outline-primary w-100">
+          {{ g.name }}
+        </a>
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}

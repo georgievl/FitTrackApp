@@ -2,13 +2,13 @@ from django.db import models
 
 
 class WeekdayChoices(models.TextChoices):
-    MONDAY = 'Monday'
-    TUESDAY = 'Tuesday'
-    WEDNESDAY = 'Wednesday'
-    THURSDAY = 'Thursday'
-    FRIDAY = 'Friday'
-    SATURDAY = 'Saturday'
-    SUNDAY = 'Sunday'
+    MONDAY = 'Monday', 'Monday'
+    TUESDAY = 'Tuesday', 'Tuesday'
+    WEDNESDAY = 'Wednesday', 'Wednesday'
+    THURSDAY = 'Thursday', 'Thursday'
+    FRIDAY = 'Friday', 'Friday'
+    SATURDAY = 'Saturday', 'Saturday'
+    SUNDAY = 'Sunday', 'Sunday'
 
 class MealChoiceChoices(models.TextChoices):
     BREAKFAST = 'Breakfast', 'Breakfast'
@@ -28,3 +28,12 @@ class DifficultyChoices(models.TextChoices):
     BEGINNER     = 'Beginner',     'Beginner'
     INTERMEDIATE = 'Intermediate', 'Intermediate'
     ADVANCED     = 'Advanced',     'Advanced'
+
+class MuscleGroupChoices(models.TextChoices):
+    CHEST  = 'Chest',  'Chest'
+    ABS    = 'Abs',    'Abs'
+    ARMS   = 'Arms',   'Arms'
+    LEGS   = 'Legs',   'Legs'
+    BACK   = 'Back',   'Back'
+    SHOULDERS = 'Shoulders', 'Shoulders'
+    CARDIO = 'Cardio','Cardio'

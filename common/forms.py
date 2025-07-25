@@ -24,7 +24,7 @@ class WorkoutPlanForm(forms.ModelForm):
 WorkoutExerciseFormSet = inlineformset_factory(
     parent_model=WorkoutPlan,
     model=WorkoutExercise,
-    fields=('exercise', 'sets', 'reps', 'rest_seconds'),
+    fields=('workout_type', 'exercise', 'sets', 'reps', 'rest_seconds'),
     extra=1,
     can_delete=True,
 )
@@ -32,7 +32,7 @@ WorkoutExerciseFormSet = inlineformset_factory(
 class WorkoutExerciseForm(forms.ModelForm):
     class Meta:
         model = WorkoutExercise
-        fields = ['exercise', 'sets', 'reps', 'rest_seconds']
+        fields = ['workout_type', 'exercise', 'sets', 'reps', 'rest_seconds']
 
 class MealPlanForm(forms.ModelForm):
     class Meta:

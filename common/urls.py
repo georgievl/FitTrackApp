@@ -29,11 +29,13 @@ urlpatterns = [
         path('<int:pk>/edit/', views.RecipeUpdateView.as_view(), name='recipe_update'),
         path('<int:pk>/delete/', views.RecipeDeleteView.as_view(), name='recipe_delete')
     ])),
-    path('exercises/', include(
-        [path('', views.ExerciseListView.as_view(), name='exercise_list'),
-         path('create/', views.ExerciseCreateView.as_view(), name='exercise_create'),
-         path('<int:pk>/', views.ExerciseDetailView.as_view(), name='exercise_detail'),
-         path('<int:pk>/edit/', views.ExerciseUpdateView.as_view(), name='exercise_update'),
-         path('<int:pk>/delete/', views.ExerciseDeleteView.as_view(), name='exercise_delete')
-         ])),
+    path('workouts/', include([
+        # 1) list of all groups
+        path('', views.ExerciseGroupListView.as_view(), name='exercise_group_list'),
+        path('create/', views.ExerciseCreateView.as_view(), name='exercise_create'),
+        path('group/<slug:group>/', views.ExerciseListByGroupView.as_view(), name='exercise_list'),
+        path('<slug:slug>/', views.ExerciseDetailView.as_view(), name='exercise_detail'),
+        path('<slug:slug>/edit/', views.ExerciseUpdateView.as_view(), name='exercise_update'),
+        path('<slug:slug>/delete/', views.ExerciseDeleteView.as_view(), name='exercise_delete'),
+    ])),
 ]

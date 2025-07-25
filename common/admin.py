@@ -4,7 +4,6 @@ from .models import (
     MealPlan, Recipe, GoalPlan, Exercise
 )
 
-
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
     list_display = ('user', 'age', 'weight', 'height')
@@ -78,3 +77,4 @@ class ExerciseAdmin(admin.ModelAdmin):
             'fields': ('overview', 'instructions', 'tips')
         }),
     )
+

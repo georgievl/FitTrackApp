@@ -2,6 +2,7 @@ from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.signals import post_migrate
 from django.dispatch import receiver
+from django.apps import AppConfig
 
 @receiver(post_migrate)
 def create_user_groups(sender, **kwargs):
@@ -31,10 +32,8 @@ def create_user_groups(sender, **kwargs):
         group.permissions.set(perms)
         group.save()
 
-from django.apps import AppConfig
-
 class CommonConfig(AppConfig):
     name = 'common'
 
     def ready(self):
-        import common.signals  # noqa
+        import common.signals

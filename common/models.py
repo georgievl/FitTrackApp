@@ -2,7 +2,10 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator
 from django.db import models
-from common.choices import WeekdayChoices, DayPlanChoices, MealChoiceChoices, DifficultyChoices
+from django.urls import reverse
+from django.utils.text import slugify
+
+from common.choices import WeekdayChoices, DayPlanChoices, MealChoiceChoices, DifficultyChoices, MuscleGroupChoices
 
 UserModel = get_user_model()
 
@@ -30,10 +33,20 @@ class WorkoutPlan(models.Model):
 
 class WorkoutExercise(models.Model):
     plan = models.ForeignKey(WorkoutPlan, on_delete=models.CASCADE, related_name='exercises')
+    workout_type = models.CharField(
+        max_length=20,
+        choices=DifficultyChoices,
+        default=DifficultyChoices.BEGINNER
+    )
     exercise = models.ForeignKey('Exercise', on_delete=models.CASCADE)
     sets = models.PositiveIntegerField()
     reps = models.PositiveIntegerField()
     rest_seconds = models.PositiveIntegerField(default=60)
+
+    def save(self, *args, **kwargs):
+        if not self.workout_type and self.plan_id:
+            self.workout_type = self.plan.workout_type
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.exercise.title} ({self.sets}×{self.reps})"
@@ -72,7 +85,7 @@ class GoalPlan(models.Model):
 class Exercise(models.Model):
     title = models.CharField(max_length=100)
     image = models.ImageField(upload_to='exercise/', blank=True, null=True)
-    target_muscle_group = models.CharField(max_length=20)
+    target_muscle_group = models.CharField(max_length=20, choices=MuscleGroupChoices)
     equipment_required = models.CharField(max_length=50)
     experience_level = models.CharField(
         max_length=20,
@@ -82,6 +95,15 @@ class Exercise(models.Model):
     overview = models.TextField()
     instructions = models.TextField()
     tips = models.TextField()
+    slug = models.SlugField(max_length=110, unique=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+        super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse('exercise_detail', kwargs={'slug': self.slug})
 
     def __str__(self):
         return self.title
