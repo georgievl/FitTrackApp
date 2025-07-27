@@ -1,5 +1,5 @@
 from django import forms
-from django.forms import inlineformset_factory
+from django.forms import inlineformset_factory, BaseInlineFormSet
 
 from .models import UserProfile, WorkoutPlan, WorkoutExercise, MealPlan, Recipe, Exercise
 
@@ -21,18 +21,18 @@ class WorkoutPlanForm(forms.ModelForm):
         model  = WorkoutPlan
         fields = ['day', 'workout_type']
 
-WorkoutExerciseFormSet = inlineformset_factory(
-    parent_model=WorkoutPlan,
-    model=WorkoutExercise,
-    fields=('workout_type', 'exercise', 'sets', 'reps', 'rest_seconds'),
-    extra=1,
-    can_delete=True,
-)
-
 class WorkoutExerciseForm(forms.ModelForm):
     class Meta:
         model = WorkoutExercise
-        fields = ['workout_type', 'exercise', 'sets', 'reps', 'rest_seconds']
+        fields = ['exercise', 'sets', 'reps', 'rest_seconds']
+
+WorkoutExerciseFormSet = inlineformset_factory(
+    parent_model=WorkoutPlan,
+    model=WorkoutExercise,
+    fields=('exercise', 'sets', 'reps', 'rest_seconds'),
+    extra=1,
+    can_delete=False,
+)
 
 class MealPlanForm(forms.ModelForm):
     class Meta:

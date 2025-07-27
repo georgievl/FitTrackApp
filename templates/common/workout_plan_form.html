@@ -16,13 +16,19 @@
 
         <form method="post" novalidate>
           {% csrf_token %}
-          {{ form|crispy }}
 
+          {{ form|crispy }}
+            <div class="d-grid mt-3">
+                <button type="submit" name="action" value="filter"
+                    class="btn btn-primary">
+              Filter Exercises
+            </button>
+            </div>
           <h5 class="mt-4">Exercises</h5>
           {{ formset.management_form }}
 
           {% if form.instance.pk %}
-            {% for subform in formset %}
+            {% for subform in formset.forms %}
               {% if subform.instance.pk %}
                 <div class="border rounded p-3 mb-3">
                   {{ subform|crispy }}
@@ -30,15 +36,15 @@
               {% endif %}
             {% endfor %}
           {% else %}
-            {% for subform in formset %}
+            {% for subform in formset.forms %}
               <div class="border rounded p-3 mb-3">
                 {{ subform|crispy }}
               </div>
             {% endfor %}
           {% endif %}
-
           <div class="d-grid mt-3">
-            <button type="submit" class="btn btn-success rounded-pill py-2">
+            <button type="submit" name="action" value="save"
+                    class="btn btn-success">
               {% if form.instance.pk %}Save Changes{% else %}Add Workout Plan{% endif %}
             </button>
           </div>

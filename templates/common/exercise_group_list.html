@@ -6,10 +6,8 @@
 {% block content %}
 <div class="container my-5">
 
-  <!-- Centered page header -->
   <h1 class="text-center mb-4">Pick a Muscle Group</h1>
 
-  <!-- Muscle-group cards grid -->
   <div class="row justify-content-center g-4">
     {% for group in muscle_groups %}
       <div class="col-6 col-sm-4 col-md-2">
@@ -24,7 +22,6 @@
     {% endfor %}
   </div>
 
-  <!-- Helper description -->
   <p class="text-center text-muted mt-5">
     Choose one of the muscle groups above to view all exercises for that area and start building your custom routine.
   </p>

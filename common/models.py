@@ -25,7 +25,6 @@ class WorkoutPlan(models.Model):
     workout_type = models.CharField(
         max_length=20,
         choices=DifficultyChoices,
-        default=DifficultyChoices.BEGINNER
     )
 
     def __str__(self):
@@ -36,7 +35,6 @@ class WorkoutExercise(models.Model):
     workout_type = models.CharField(
         max_length=20,
         choices=DifficultyChoices,
-        default=DifficultyChoices.BEGINNER
     )
     exercise = models.ForeignKey('Exercise', on_delete=models.CASCADE)
     sets = models.PositiveIntegerField()
@@ -90,7 +88,6 @@ class Exercise(models.Model):
     experience_level = models.CharField(
         max_length=20,
         choices=DifficultyChoices,
-        default=DifficultyChoices.BEGINNER
     )
     overview = models.TextField()
     instructions = models.TextField()

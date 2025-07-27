@@ -1,5 +1,5 @@
+from collections import OrderedDict
 from datetime import datetime
-
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -9,6 +9,8 @@ from django.views.generic import TemplateView, FormView, UpdateView, DetailView,
 from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import reverse_lazy
 from django.contrib.auth.forms import UserCreationForm
+
+from common.choices import DifficultyChoices
 from common.forms import UserProfileForm, WorkoutPlanForm, WorkoutExerciseFormSet, MealPlanForm, RecipeForm, ExerciseForm
 from common.models import UserProfile, WorkoutPlan, MealPlan, Recipe, Exercise
 
@@ -53,58 +55,75 @@ class DashboardView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         weekday = datetime.now().strftime('%A')
-        context['today']        = weekday
-        context['workouts']     = WorkoutPlan.objects.filter(user=self.request.user, day=weekday)
-        context['meals']        = MealPlan.objects.filter(user=self.request.user, day=weekday)
-        context['current_goal'] = self.request.user.userprofile.goal
+        today_plans = (WorkoutPlan.objects
+                       .filter(user=self.request.user, day=weekday)
+                       .prefetch_related('exercises__exercise'))
 
-        goal_info = None
-        if context['current_goal']:
-            length = int(context['current_goal'].length)
-            if length == 30:
-                goal_info = {
-                    'weekly_workouts': 5,
-                    'cheat_days': 2,
-                    'meals_per_day': 5,
-                }
-            elif length == 60:
-                goal_info = {
-                    'weekly_workouts': 6,
-                    'cheat_days': 1,
-                    'meals_per_day': 6,
-                }
-            else:
-                goal_info = {
-                    'weekly_workouts': 7,
-                    'cheat_days': 0,
-                    'meals_per_day': 7,
-                }
-        context['goal_info'] = goal_info
+        workouts_by_type = OrderedDict()
+        for key, label in DifficultyChoices.choices:
+            qs = today_plans.filter(workout_type=key)
+            if qs.exists():
+                workouts_by_type[label] = qs
 
+        context.update({
+            'today': weekday,
+            'workouts_by_type': workouts_by_type,
+            'meals': MealPlan.objects.filter(user=self.request.user, day=weekday),
+            'current_goal': self.request.user.userprofile.goal,
+            'goal_info': self._build_goal_info(self.request.user.userprofile.goal),
+        })
         return context
+
+    def _build_goal_info(self, goal):
+        if not goal:
+            return None
+        length = int(goal.length)
+        return {
+            30: {'weekly_workouts':5,'cheat_days':2,'meals_per_day':5},
+            60: {'weekly_workouts':6,'cheat_days':1,'meals_per_day':6},
+        }.get(length, {'weekly_workouts':7,'cheat_days':0,'meals_per_day':7})
 
 @login_required
 def create_workout_plan(request):
+
+    plan = WorkoutPlan(user=request.user)
+
     if request.method == 'POST':
-        form = WorkoutPlanForm(request.POST)
-        formset = WorkoutExerciseFormSet(request.POST)
-        if form.is_valid() and formset.is_valid():
+        form    = WorkoutPlanForm(request.POST, instance=plan)
+        formset = WorkoutExerciseFormSet(request.POST, instance=plan)
+
+        level = None
+        if form.is_valid():
+            level = form.cleaned_data['workout_type']
+
+        qs = Exercise.objects.filter(experience_level=level) if level else Exercise.objects.none()
+        for sub in formset.forms:
+            sub.fields['exercise'].queryset = qs
+
+        action = request.POST.get('action')
+        if action == 'save' and form.is_valid() and formset.is_valid():
             plan = form.save(commit=False)
             plan.user = request.user
             plan.save()
             formset.instance = plan
             formset.save()
-            messages.success(request, "Workout plan created successfully.")
+            messages.success(request, "Workout plan created.")
             return redirect('dashboard')
+
     else:
-        form = WorkoutPlanForm()
-        formset = WorkoutExerciseFormSet()
+        form    = WorkoutPlanForm(instance=plan)
+        formset = WorkoutExerciseFormSet(instance=plan)
+
+        default_qs = Exercise.objects.filter(
+            experience_level=plan.workout_type
+        )
+        for sub in formset.forms:
+            sub.fields['exercise'].queryset = default_qs
 
     return render(request, 'common/workout_plan_form.html', {
-        'form': form,
+        'form':    form,
         'formset': formset,
-        'title': 'Create Workout Plan',
-        'btn_label': 'Create Workout Plan',
+        'title':   'Create Workout Plan',
     })
 
 class WorkoutPlanDetailView(LoginRequiredMixin, DetailView):
@@ -117,24 +136,37 @@ class WorkoutPlanDetailView(LoginRequiredMixin, DetailView):
 @login_required
 def update_workout_plan(request, pk):
     plan = get_object_or_404(WorkoutPlan, pk=pk, user=request.user)
+
     if request.method == 'POST':
         form    = WorkoutPlanForm(request.POST, instance=plan)
         formset = WorkoutExerciseFormSet(request.POST, instance=plan)
-        if form.is_valid() and formset.is_valid():
+
+        if form.is_valid():
+            level = form.cleaned_data['workout_type']
+            qs = Exercise.objects.filter(experience_level=level)
+            for sub in formset.forms:
+                sub.fields['exercise'].queryset = qs
+
+        action = request.POST.get('action')
+        if action == 'save' and form.is_valid() and formset.is_valid():
             form.save()
             formset.save()
             messages.success(request, "Workout plan updated successfully.")
             return redirect('dashboard')
+
     else:
         form    = WorkoutPlanForm(instance=plan)
         formset = WorkoutExerciseFormSet(instance=plan)
+        qs = Exercise.objects.filter(experience_level=plan.workout_type)
+        for sub in formset.forms:
+            sub.fields['exercise'].queryset = qs
 
     return render(request, 'common/workout_plan_form.html', {
-        'form':      form,
-        'formset':   formset,
-        'title':     'Edit Workout Plan',
-        'btn_label': 'Save Changes',
+        'form':    form,
+        'formset': formset,
+        'title':   'Edit Workout Plan',
     })
+
 
 class WorkoutPlanDeleteView(LoginRequiredMixin, DeleteView):
     model = WorkoutPlan
