@@ -10,7 +10,7 @@ from common.choices import WeekdayChoices, DayPlanChoices, MealChoiceChoices, Di
 UserModel = get_user_model()
 
 class UserProfile(models.Model):
-    user = models.OneToOneField(UserModel, on_delete=models.CASCADE)
+    user = models.OneToOneField(UserModel, on_delete=models.CASCADE, related_name='profile')
     goal = models.ForeignKey('GoalPlan', null=True, on_delete=models.SET_NULL)
     age = models.PositiveIntegerField(null=True, blank=True)
     weight = models.FloatField(null=True, blank=True)
@@ -67,6 +67,17 @@ class Recipe(models.Model):
     ingredients = models.TextField()
     calories = models.PositiveIntegerField()
     cooking_instructions = models.TextField()
+    category = models.CharField(
+        max_length=20,
+        choices=MealChoiceChoices,
+    )
+
+    slug = models.SlugField(max_length=110, unique=True, blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.title

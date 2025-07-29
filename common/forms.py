@@ -34,6 +34,15 @@ WorkoutExerciseFormSet = inlineformset_factory(
     can_delete=False,
 )
 
+WorkoutExerciseFormSetEdit = inlineformset_factory(
+    parent_model=WorkoutPlan,
+    model=WorkoutExercise,
+    form=WorkoutExerciseForm,
+    fields=('exercise','sets','reps','rest_seconds'),
+    extra=0,
+    can_delete=False,
+)
+
 class MealPlanForm(forms.ModelForm):
     class Meta:
         model = MealPlan
@@ -42,7 +51,15 @@ class MealPlanForm(forms.ModelForm):
 class RecipeForm(forms.ModelForm):
     class Meta:
         model = Recipe
-        fields = ['title', 'image_url', 'description', 'prep_time', 'cook_time', 'ingredients', 'cooking_instructions', 'calories']
+        fields = ['title',
+                  'image_url',
+                  'description',
+                  'prep_time',
+                  'cook_time',
+                  'ingredients',
+                  'cooking_instructions',
+                  'calories',
+                  'category']
 
 class ChooseGoalForm(forms.ModelForm):
     class Meta:

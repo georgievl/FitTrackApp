@@ -32,8 +32,8 @@ def create_user_groups(sender, **kwargs):
         group.permissions.set(perms)
         group.save()
 
-class CommonConfig(AppConfig):
-    name = 'common'
-
-    def ready(self):
-        import common.signals
+# class CommonConfig(AppConfig):
+#     name = 'common'
+#
+#     def ready(self):
+#         import common.signals

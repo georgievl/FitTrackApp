@@ -18,33 +18,26 @@
           {% csrf_token %}
 
           {{ form|crispy }}
-            <div class="d-grid mt-3">
-                <button type="submit" name="action" value="filter"
-                    class="btn btn-primary">
+
+          <div class="d-grid mt-3">
+            <button type="submit" name="action" value="filter" class="btn btn-primary">
               Filter Exercises
             </button>
-            </div>
+          </div>
+
           <h5 class="mt-4">Exercises</h5>
+          {{ formset.non_form_errors }}
           {{ formset.management_form }}
 
-          {% if form.instance.pk %}
-            {% for subform in formset.forms %}
-              {% if subform.instance.pk %}
-                <div class="border rounded p-3 mb-3">
-                  {{ subform|crispy }}
-                </div>
-              {% endif %}
-            {% endfor %}
-          {% else %}
-            {% for subform in formset.forms %}
-              <div class="border rounded p-3 mb-3">
-                {{ subform|crispy }}
-              </div>
-            {% endfor %}
-          {% endif %}
+          {# render every subform, including the blank extra one #}
+          {% for subform in formset.forms %}
+            <div class="border rounded p-3 mb-3">
+              {{ subform|crispy }}
+            </div>
+          {% endfor %}
+
           <div class="d-grid mt-3">
-            <button type="submit" name="action" value="save"
-                    class="btn btn-success">
+            <button type="submit" name="action" value="save" class="btn btn-success">
               {% if form.instance.pk %}Save Changes{% else %}Add Workout Plan{% endif %}
             </button>
           </div>

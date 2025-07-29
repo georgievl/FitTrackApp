@@ -10,8 +10,9 @@ from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import reverse_lazy
 from django.contrib.auth.forms import UserCreationForm
 
-from common.choices import DifficultyChoices
-from common.forms import UserProfileForm, WorkoutPlanForm, WorkoutExerciseFormSet, MealPlanForm, RecipeForm, ExerciseForm
+from common.choices import DifficultyChoices, MealChoiceChoices
+from common.forms import UserProfileForm, WorkoutPlanForm, WorkoutExerciseFormSet, MealPlanForm, RecipeForm, \
+    ExerciseForm, WorkoutExerciseFormSetEdit
 from common.models import UserProfile, WorkoutPlan, MealPlan, Recipe, Exercise
 
 
@@ -53,26 +54,41 @@ class DashboardView(LoginRequiredMixin, TemplateView):
     template_name = 'common/dashboard.html'
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+        ctx = super().get_context_data(**kwargs)
         weekday = datetime.now().strftime('%A')
-        today_plans = (WorkoutPlan.objects
-                       .filter(user=self.request.user, day=weekday)
-                       .prefetch_related('exercises__exercise'))
 
+        # --- workouts grouping (unchanged) ---
+        today_plans = (
+            WorkoutPlan.objects
+            .filter(user=self.request.user, day=weekday)
+            .prefetch_related('exercises__exercise')
+        )
         workouts_by_type = OrderedDict()
         for key, label in DifficultyChoices.choices:
             qs = today_plans.filter(workout_type=key)
             if qs.exists():
                 workouts_by_type[label] = qs
 
-        context.update({
+        # --- NEW: meals grouping by meal_choice ---
+        today_meals = (
+            MealPlan.objects
+            .filter(user=self.request.user, day=weekday)
+            .select_related('recipe')
+        )
+        meals_by_choice = OrderedDict()
+        for key, label in MealChoiceChoices.choices:
+            qs = today_meals.filter(meal_choice=key)
+            if qs.exists():
+                meals_by_choice[label] = qs
+
+        ctx.update({
             'today': weekday,
             'workouts_by_type': workouts_by_type,
-            'meals': MealPlan.objects.filter(user=self.request.user, day=weekday),
-            'current_goal': self.request.user.userprofile.goal,
-            'goal_info': self._build_goal_info(self.request.user.userprofile.goal),
+            'meals_by_choice': meals_by_choice,
+            'current_goal': self.request.user.profile.goal,
+            'goal_info': self._build_goal_info(self.request.user.profile.goal),
         })
-        return context
+        return ctx
 
     def _build_goal_info(self, goal):
         if not goal:
@@ -137,29 +153,31 @@ class WorkoutPlanDetailView(LoginRequiredMixin, DetailView):
 def update_workout_plan(request, pk):
     plan = get_object_or_404(WorkoutPlan, pk=pk, user=request.user)
 
+    # pick the edit formset
+    form_set = WorkoutExerciseFormSetEdit
+
     if request.method == 'POST':
         form    = WorkoutPlanForm(request.POST, instance=plan)
-        formset = WorkoutExerciseFormSet(request.POST, instance=plan)
+        formset = form_set(request.POST, instance=plan)
 
         if form.is_valid():
-            level = form.cleaned_data['workout_type']
-            qs = Exercise.objects.filter(experience_level=level)
+            level_qs = Exercise.objects.filter(
+                experience_level=form.cleaned_data['workout_type']
+            )
             for sub in formset.forms:
-                sub.fields['exercise'].queryset = qs
+                sub.fields['exercise'].queryset = level_qs
 
-        action = request.POST.get('action')
-        if action == 'save' and form.is_valid() and formset.is_valid():
+        if request.POST.get('action') == 'save' and form.is_valid() and formset.is_valid():
             form.save()
             formset.save()
             messages.success(request, "Workout plan updated successfully.")
             return redirect('dashboard')
-
     else:
         form    = WorkoutPlanForm(instance=plan)
-        formset = WorkoutExerciseFormSet(instance=plan)
-        qs = Exercise.objects.filter(experience_level=plan.workout_type)
+        formset = form_set(instance=plan)
+        level_qs = Exercise.objects.filter(experience_level=plan.workout_type)
         for sub in formset.forms:
-            sub.fields['exercise'].queryset = qs
+            sub.fields['exercise'].queryset = level_qs
 
     return render(request, 'common/workout_plan_form.html', {
         'form':    form,
@@ -207,7 +225,7 @@ class ExerciseUpdateView(LoginRequiredMixin, UpdateView):
     slug_url_kwarg   = 'slug'
 
     def get_success_url(self):
-        return reverse_lazy('exercise_detail', kwargs={'slug': self.object.pk})
+        return reverse_lazy('exercise_detail', kwargs={'slug': self.object.slug})
 
 class ExerciseDeleteView(LoginRequiredMixin, DeleteView):
     model = Exercise
@@ -283,7 +301,8 @@ class RecipeCreateView(LoginRequiredMixin, CreateView):
     model = Recipe
     form_class = RecipeForm
     template_name = 'common/recipe_form.html'
-    success_url = reverse_lazy('recipe_list')
+    success_url = reverse_lazy('meals_group_list')
+
 class RecipeListView(ListView):
     model = Recipe
     template_name = 'common/recipe_list.html'
@@ -292,22 +311,30 @@ class RecipeListView(ListView):
 class RecipeDetailView(LoginRequiredMixin, DetailView):
     model = Recipe
     template_name = 'common/recipe_detail.html'
+    slug_field = 'slug'
+    slug_url_kwarg = 'slug'
 
 class RecipeUpdateView(LoginRequiredMixin, UpdateView):
     model = Recipe
     form_class = RecipeForm
     template_name = 'common/recipe_form.html'
+    slug_field = 'slug'
+    slug_url_kwarg = 'slug'
+
     def get_success_url(self):
-        return reverse_lazy('recipe_detail', kwargs={'pk': self.object.pk})
+        return reverse_lazy('recipe_detail', kwargs={'slug': self.object.slug})
 
 class RecipeDeleteView(LoginRequiredMixin, DeleteView):
     model = Recipe
     template_name = 'common/confirm_delete.html'
-    success_url = reverse_lazy('recipe_list')
+    success_url = reverse_lazy('meals_group_list')
+    slug_field = 'slug'
+    slug_url_kwarg = 'slug'
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Delete Recipe'
-        context['cancel_url'] = 'recipe_list'
+        context['cancel_url'] = 'meals_group_list'
         return context
 
 class ExerciseGroupListView(LoginRequiredMixin, TemplateView):
@@ -348,3 +375,32 @@ class ExerciseCreateByGroupView(LoginRequiredMixin, CreateView):
 
     def get_success_url(self):
         return reverse_lazy('exercise_list_by_group', kwargs={'group': self.kwargs['group']})
+
+
+class RecipeGroupListView(LoginRequiredMixin, TemplateView):
+    template_name = 'common/meals_group_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # build a list of {name, slug} for each choice
+        context['recipe_groups'] = [
+            {'name': label, 'slug': slugify(label)}
+            for _, label in MealChoiceChoices.choices
+        ]
+        return context
+
+class RecipeListByGroupView(LoginRequiredMixin, ListView):
+    model = Recipe
+    template_name = 'common/recipe_list.html'
+    context_object_name = 'recipes'
+
+    def get_queryset(self):
+        # slug comes in hyphenated; convert back to label form
+        grp = self.kwargs['group'].replace('-', ' ')
+        return Recipe.objects.filter(category__iexact=grp)
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        # title case for heading
+        ctx['group_name'] = self.kwargs['group'].replace('-', ' ').title()
+        return ctx
