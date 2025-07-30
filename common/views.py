@@ -9,7 +9,6 @@ from django.views.generic import TemplateView, FormView, UpdateView, DetailView,
 from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import reverse_lazy
 from django.contrib.auth.forms import UserCreationForm
-
 from common.choices import DifficultyChoices, MealChoiceChoices
 from common.forms import UserProfileForm, WorkoutPlanForm, WorkoutExerciseFormSet, MealPlanForm, RecipeForm, \
     ExerciseForm, WorkoutExerciseFormSetEdit
@@ -57,7 +56,6 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         ctx = super().get_context_data(**kwargs)
         weekday = datetime.now().strftime('%A')
 
-        # --- workouts grouping (unchanged) ---
         today_plans = (
             WorkoutPlan.objects
             .filter(user=self.request.user, day=weekday)
@@ -69,7 +67,6 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             if qs.exists():
                 workouts_by_type[label] = qs
 
-        # --- NEW: meals grouping by meal_choice ---
         today_meals = (
             MealPlan.objects
             .filter(user=self.request.user, day=weekday)
@@ -153,7 +150,6 @@ class WorkoutPlanDetailView(LoginRequiredMixin, DetailView):
 def update_workout_plan(request, pk):
     plan = get_object_or_404(WorkoutPlan, pk=pk, user=request.user)
 
-    # pick the edit formset
     form_set = WorkoutExerciseFormSetEdit
 
     if request.method == 'POST':
@@ -242,21 +238,29 @@ class ExerciseDeleteView(LoginRequiredMixin, DeleteView):
 
 @login_required
 def create_meal_plan(request):
+    meal = MealPlan(user=request.user)
+
     if request.method == 'POST':
-        form = MealPlanForm(request.POST)
-        if form.is_valid():
+        form   = MealPlanForm(request.POST, instance=meal)
+        action = request.POST.get('action')
+
+        if action == 'filter':
+            form.fields['recipe'].required = False
+
+        if action == 'save' and form.is_valid():
             meal = form.save(commit=False)
             meal.user = request.user
             meal.save()
             messages.success(request, "Meal plan created successfully.")
             return redirect('dashboard')
+
     else:
-        form = MealPlanForm()
+        form = MealPlanForm(instance=meal)
 
     return render(request, 'common/meal_form.html', {
-        'form': form,
-        'title': 'Create Meal Plan',
-        'btn_label': 'Add Meal'
+        'form':      form,
+        'title':     'Create Meal Plan',
+        'btn_label': 'Add Meal',
     })
 
 class MealPlanDetailView(LoginRequiredMixin, DetailView):
@@ -382,7 +386,6 @@ class RecipeGroupListView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # build a list of {name, slug} for each choice
         context['recipe_groups'] = [
             {'name': label, 'slug': slugify(label)}
             for _, label in MealChoiceChoices.choices
@@ -395,12 +398,10 @@ class RecipeListByGroupView(LoginRequiredMixin, ListView):
     context_object_name = 'recipes'
 
     def get_queryset(self):
-        # slug comes in hyphenated; convert back to label form
         grp = self.kwargs['group'].replace('-', ' ')
         return Recipe.objects.filter(category__iexact=grp)
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        # title case for heading
         ctx['group_name'] = self.kwargs['group'].replace('-', ' ').title()
         return ctx

@@ -29,7 +29,6 @@
           {{ formset.non_form_errors }}
           {{ formset.management_form }}
 
-          {# render every subform, including the blank extra one #}
           {% for subform in formset.forms %}
             <div class="border rounded p-3 mb-3">
               {{ subform|crispy }}
