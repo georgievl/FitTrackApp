@@ -5,7 +5,7 @@
 
 {% block content %}
 <div class="row justify-content-center">
-  <div class="col-md-10 col-lg-8">
+  <div class="col-md-11 col-lg-9">
 
     <div class="card mb-4 shadow-sm">
       {% if object.image %}
@@ -18,9 +18,9 @@
       {% endif %}
 
       <div class="card-body">
-        <h2 class="card-title">{{ object.title }}</h2>
+        <h2 class="text-muted text-center fw-bold fst-italic">---{{ object.title }}---</h2>
 
-        <div class="d-flex flex-wrap text-muted mb-4">
+        <div class="d-flex flex-wrap justify-content-center text-muted mb-4">
           <div class="me-4">
             <i class="bi bi-patch-question me-1"></i>
             Muscle Group: {{ object.target_muscle_group }}
@@ -35,16 +35,44 @@
           </div>
         </div>
 
-        <h5>Overview</h5>
-        <p class="card-text">{{ object.overview|linebreaks }}</p>
+        <div class="text-center">
+            <h2 class="fw-bold">~Overview~</h2>
+            <div class="card-text text-center">
+                <ul class="list-group">
+                    {% for row in object.overview_steps %}
+                        <li class="list-group-item list-group-item-dark list-group-item-action">
+                            {{ row }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
 
-        <h5>Instructions</h5>
-        <p class="card-text">{{ object.instructions|linebreaks }}</p>
+        <div class="text-center">
+            <h2 class="fw-bold">~Instructions~</h2>
+            <div class="card-text text-center">
+                <ul class="list-group">
+                    {% for row in object.instruction_steps %}
+                        <li class="list-group-item list-group-item-dark list-group-item-action">
+                            {{ row }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
 
-        {% if object.tips %}
-          <h5>Tips</h5>
-          <p class="card-text">{{ object.tips|linebreaks }}</p>
-        {% endif %}
+        <div class="text-center">
+            <h2 class="fw-bold">~Tips~</h2>
+            <div class="card-text text-center">
+                <ul class="list-group">
+                    {% for row in object.tips_steps %}
+                        <li class="list-group-item list-group-item-dark list-group-item-action">
+                            {{ row }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
       </div>
     </div>
 

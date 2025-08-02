@@ -5,7 +5,7 @@
 
 {% block content %}
 <div class="row justify-content-center">
-  <div class="col-md-10 col-lg-8">
+  <div class="col-md-11 col-lg-9">
 
     <div class="card mb-4 shadow-sm">
       {% if object.image_url %}
@@ -18,10 +18,10 @@
       {% endif %}
 
       <div class="card-body">
-        <h6 class="text-muted">{{ object.name }}</h6>
-        <h2 class="card-description">{{ object.description }}</h2>
+        <h2 class="text-muted text-center fw-bold fst-italic">---{{ object.title }}---</h2>
+        <h4 class="card-description text-center fw-bolder">{{ object.description }}</h4>
 
-        <div class="d-flex flex-wrap text-muted mb-3">
+        <div class="d-flex flex-wrap justify-content-center text-muted mb-3">
           <div class="me-4">
             <i class="bi bi-clock me-1"></i> Prep: {{ object.prep_time }} min
           </div>
@@ -35,15 +35,33 @@
           {% endif %}
         </div>
 
-        <h5>Ingredients</h5>
-        <p class="card-text">{{ object.ingredients|linebreaks }}</p>
+        <div class="text-center">
+          <h2 class="fw-bold">~Ingredients~</h2>
+        <div class="card-text text-center">
+            <ul class="list-group">
+              {% for ingredient in object.ingredient_steps %}
+                <li class="list-group-item list-group-item-dark list-group-item-action">
+                  {{ ingredient }}
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
 
-        <h5>Instructions</h5>
-        <p class="card-text">{{ object.cooking_instructions|linebreaks }}</p>
-
+        <div class="text-center">
+            <h2 class="fw-bold">~Instructions~</h2>
+        <div class="card-text text-center">
+          <ul class="list-group">
+            {% for step in object.instruction_steps %}
+              <li class="list-group-item list-group-item-dark list-group-item-action">
+                {{ step }}
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+        </div>
       </div>
     </div>
-
   </div>
 </div>
 {% endblock %}

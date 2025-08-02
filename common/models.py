@@ -72,6 +72,14 @@ class Recipe(models.Model):
         choices=MealChoiceChoices,
     )
 
+    @property
+    def instruction_steps(self):
+        return [line for line in self.cooking_instructions.splitlines() if line.strip()]
+
+    @property
+    def ingredient_steps(self):
+        return [line for line in self.ingredients.splitlines() if line.strip()]
+
     slug = models.SlugField(max_length=110, unique=True, blank=True, null=True)
 
     def save(self, *args, **kwargs):
@@ -104,6 +112,19 @@ class Exercise(models.Model):
     instructions = models.TextField()
     tips = models.TextField()
     slug = models.SlugField(max_length=110, unique=True, blank=True)
+
+    @property
+    def overview_steps(self):
+        return [line for line in self.overview.splitlines() if line.strip()]
+
+    @property
+    def instruction_steps(self):
+        return [line for line in self.instructions.splitlines() if line.strip()]
+
+    @property
+    def tips_steps(self):
+        text = self.tips or ""
+        return [line for line in text.splitlines() if line.strip()]
 
     def save(self, *args, **kwargs):
         if not self.slug:

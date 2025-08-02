@@ -17,32 +17,38 @@
       <div class="col-md-4 mb-4">
         <div class="card h-100 shadow-sm position-relative">
           {% if user.is_staff %}
-          <div class="position-absolute top-0 end-0 m-2 d-flex gap-2">
-            <a href="{% url 'exercise_update' exercise.slug %}"
-               class="text-primary" title="Edit">
-              <i class="bi bi-pencil-square"></i>
-            </a>
-            <a href="{% url 'exercise_delete' exercise.slug %}"
-               class="text-danger" title="Delete">
-              <i class="bi bi-trash"></i>
-            </a>
+            <div class="position-absolute top-0 end-0 m-2 d-flex gap-2">
+            {% if exercise.slug %}
+                <a href="{% url 'exercise_update' exercise.slug %}"
+                   class="text-primary" title="Edit">
+                  <i class="bi bi-pencil-square"></i>
+                </a>
+                <a href="{% url 'exercise_delete' exercise.slug %}"
+                   class="text-danger" title="Delete">
+                  <i class="bi bi-trash"></i>
+                </a>
+            {% endif %}
           </div>
           {% endif %}
 
           <div class="card-body d-flex flex-column">
-            <h5 class="card-title">
-              <a href="{% url 'exercise_detail' exercise.slug %}"
-                 class="text-decoration-none">
-                {{ exercise.title }}
-              </a>
+            <h5 class="card-title text-start pe-5">
+                {% if exercise.slug %}
+                  <a href="{% url 'exercise_detail' exercise.slug %}"
+                     class="text-decoration-underline">
+                          {{ exercise.title }}
+                  </a>
+                {% else %}
+                    {{ exercise.title }}
+                {% endif %}
             </h5>
-            <p class="card-text text-muted mb-2">
+            <p class="card-text text-muted mb-2 text-center">
               <i class="bi bi-patch-question me-1"></i>{{ exercise.get_target_muscle_group_display }} &nbsp;
               <i class="bi bi-tools me-1"></i>{{ exercise.equipment_required }} &nbsp;
               <i class="bi bi-bar-chart me-1"></i>{{ exercise.get_experience_level_display }}
             </p>
             {% if exercise.overview %}
-              <p class="mt-auto text-muted">
+              <p class="mt-auto text-muted text-end">
                 {{ exercise.overview|truncatewords:15 }}
               </p>
             {% endif %}
