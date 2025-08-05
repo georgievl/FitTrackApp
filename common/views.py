@@ -1,6 +1,7 @@
 from collections import OrderedDict
 from datetime import datetime
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Count
 from django.views.generic import TemplateView, FormView, UpdateView
 from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import reverse_lazy
@@ -57,6 +58,8 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         today_plans = (
             WorkoutPlan.objects
             .filter(user=self.request.user, day=weekday)
+            .annotate(ex_count=Count('exercises'))
+            .filter(ex_count__gt=0)
             .prefetch_related('exercises__exercise')
         )
         workouts_by_type = OrderedDict()
