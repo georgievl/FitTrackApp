@@ -9,10 +9,12 @@
       <h1 class="display-3 mb-3">Welcome to FitTrack</h1>
       <p class="lead mb-4">Plan your workouts and meals effortlessly.</p>
 
-      <p class="mb-5">
-        Whether you’re just starting out or you’re a professional athlete, FitTrack adapts
-        to your goals. Create custom meals and workouts, use existing ones and track your routines easily.
-      </p>
+        <p class="text-center mb-5 text-nowrap">
+          Either you’re just starting out or you’re a professional athlete, FitTrack has the tools for your goals.
+            Create custom meals and workouts, use existing ones and track your routines easily.
+        </p>
+
+          <hr class="my-4">
 
       {% if user.is_authenticated and user.profile.name %}
         <p class="fw-bolder mb-4">Welcome back, {{ user.profile.name }}!</p>
