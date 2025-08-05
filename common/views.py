@@ -62,7 +62,8 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             .prefetch_related('exercises__exercise')
         )
         workouts_by_type = OrderedDict()
-        for key, label in DifficultyChoices.choices:
+        for key, label in (
+                DifficultyChoices.choices):
             qs = today_plans.filter(workout_type=key)
             if qs.exists():
                 workouts_by_type[label] = qs
