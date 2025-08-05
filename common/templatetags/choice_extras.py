@@ -1,5 +1,5 @@
 from django import template
-from common.choices import DifficultyChoices
+from workouts.choices import DifficultyChoices
 
 register = template.Library()
 

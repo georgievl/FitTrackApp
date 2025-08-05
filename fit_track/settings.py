@@ -31,6 +31,10 @@ ALLOWED_HOSTS = []
 # Application definition
 
 PROJECT_APPS = [
+    'workout_plan',
+    'workouts',
+    'meals',
+    'meal_plan',
     'common.apps.CommonConfig',
 ]
 
@@ -80,10 +84,14 @@ WSGI_APPLICATION = 'fit_track.wsgi.application'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+"default": {
+"ENGINE": "django.db.backends.postgresql",
+"NAME": "Fit Track App",
+"USER": "postgres",
+"PASSWORD": "Rr112233!",
+"HOST": "localhost",
+"PORT": "5432",
+}
 }
 
 
