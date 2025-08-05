@@ -1,17 +1,34 @@
 {% extends 'common/base.html' %}
 
-{% block title %}About{% endblock %}
+{% block title %}About FitTrack{% endblock %}
 
 {% block content %}
 <div class="container text-center mt-5">
-    <h2>About FitTrack</h2>
-    <p class="lead mt-3">
-        FitTrack is a fitness planning app that helps you track your workouts and meals for each day of the week.
+  <h2>About FitTrack</h2>
+  <p class="lead mt-3">
+    FitTrack is a fitness planning app that helps you track your workouts and meals for each day of the week.
+  </p>
+  <p>
+    Whether you're bulking, cutting, or just staying active — FitTrack makes it easy to stay organized and consistent.
+  </p>
+
+ <hr class="my-4">
+
+  <section class="mb-5">
+    <h4>Our Mission</h4>
+    <p class="mx-auto" style="max-width:700px;">
+      To give you the right tools to succeed in your fitness ambitions by making meal planning and workout tracking fun,
+      interactive, and effortless.
     </p>
-    <p>
-        Whether you're bulking, cutting, or just staying active — FitTrack makes it easy to stay organized and consistent.
+  </section>
+
+  <hr class="my-4">
+
+  <div class="d-flex align-items-center justify-content-center"
+       style="height: calc(100vh - 600px);">
+    <p class="text-muted text-center mb-0">
+      Created as part of the Django Advanced course at SoftUni.
     </p>
-    <hr class="my-4">
-    <p class="text-muted">Created as part of the Django Advanced course at SoftUni.</p>
+  </div>
 </div>
 {% endblock %}
