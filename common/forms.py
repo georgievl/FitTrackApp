@@ -1,5 +1,5 @@
 from django import forms
-from django.forms import inlineformset_factory, BaseInlineFormSet
+from django.forms import inlineformset_factory
 
 from .models import UserProfile, WorkoutPlan, WorkoutExercise, MealPlan, Recipe, Exercise
 
@@ -7,7 +7,7 @@ from .models import UserProfile, WorkoutPlan, WorkoutExercise, MealPlan, Recipe,
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
-        fields = ['age', 'weight', 'height', 'goal']
+        fields = ['name', 'age', 'weight', 'height', 'goal']
         widgets = {
             'fitness_goal': forms.TextInput(attrs={
                 'rows': 4,

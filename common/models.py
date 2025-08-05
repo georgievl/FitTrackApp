@@ -11,6 +11,7 @@ UserModel = get_user_model()
 
 class UserProfile(models.Model):
     user = models.OneToOneField(UserModel, on_delete=models.CASCADE, related_name='profile')
+    name = models.CharField(max_length=100, blank=True)
     goal = models.ForeignKey('GoalPlan', null=True, on_delete=models.SET_NULL)
     age = models.PositiveIntegerField(null=True, blank=True)
     weight = models.FloatField(null=True, blank=True)
@@ -59,7 +60,7 @@ class MealPlan(models.Model):
         return f"{self.user.username} - {self.day} {self.meal_choice}"
 
 class Recipe(models.Model):
-    title = models.CharField(max_length=100)
+    title = models.CharField(max_length=100, unique=True)
     image_url = models.ImageField(upload_to='recipes/', blank=True, null=True)
     description = models.TextField(blank=True)
     prep_time = models.PositiveIntegerField(validators=[MaxValueValidator(120)], default=10)
@@ -100,7 +101,7 @@ class GoalPlan(models.Model):
         return f"{self.length}‑Day: {self.name}"
 
 class Exercise(models.Model):
-    title = models.CharField(max_length=100)
+    title = models.CharField(max_length=100, unique=True)
     image = models.ImageField(upload_to='exercise/', blank=True, null=True)
     target_muscle_group = models.CharField(max_length=20, choices=MuscleGroupChoices)
     equipment_required = models.CharField(max_length=50)
