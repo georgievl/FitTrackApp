@@ -18,8 +18,8 @@
 ## 📸 Screenshots
 
 <img src="screenshots/dashboard.png" alt="Dashboard" width="800">
-<img src="screenshots/about_page.png" alt="About Page" width="800">
-<img src="screenshots/landing_page.png" alt="Landing Page" width="800">
+<img src="screenshots/about.png" alt="About Page" width="800">
+<img src="screenshots/landing.png" alt="Landing Page" width="800">
 
 ---
 
